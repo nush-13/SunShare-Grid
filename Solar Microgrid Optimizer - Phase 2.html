@@ -1,0 +1,1059 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solar Microgrid Optimizer - Delhi-NCR</title>
+    <style>
+        :root {
+            --color-bg-primary: #0f172a;
+            --color-bg-secondary: #1e293b;
+            --color-bg-tertiary: #334155;
+            --color-text-primary: #f1f5f9;
+            --color-text-secondary: #cbd5e1;
+            --color-text-muted: #94a3b8;
+            --color-accent-green: #10b981;
+            --color-accent-blue: #3b82f6;
+            --color-accent-yellow: #fbbf24;
+            --color-accent-orange: #f97316;
+            --color-success: #22c55e;
+            --color-warning: #eab308;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background-color: var(--color-bg-primary);
+            color: var(--color-text-primary);
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0d2818 0%, #1a472a 100%);
+            padding: 30px 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 4px solid var(--color-accent-green);
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            color: var(--color-accent-green);
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--color-text-secondary);
+            font-size: 1.1rem;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-bg-tertiary);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .panel h2 {
+            color: var(--color-accent-green);
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .panel-icon {
+            width: 32px;
+            height: 32px;
+            background: rgba(16, 185, 129, 0.2);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .control-group {
+            margin-bottom: 20px;
+        }
+
+        .control-group label {
+            display: block;
+            color: var(--color-text-secondary);
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .input-field,
+        .select-field {
+            width: 100%;
+            padding: 12px;
+            background-color: var(--color-bg-tertiary);
+            border: 1px solid rgba(148, 163, 184, 0.3);
+            border-radius: 8px;
+            color: var(--color-text-primary);
+            font-size: 0.95rem;
+            transition: border-color 0.2s;
+        }
+
+        .input-field:focus,
+        .select-field:focus {
+            outline: none;
+            border-color: var(--color-accent-green);
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+        }
+
+        .button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.95rem;
+        }
+
+        .button-primary {
+            background-color: var(--color-accent-green);
+            color: white;
+            width: 100%;
+        }
+
+        .button-primary:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+        }
+
+        .button-secondary {
+            background-color: var(--color-accent-blue);
+            color: white;
+        }
+
+        .button-secondary:hover {
+            background-color: #2563eb;
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        input[type="range"] {
+            flex: 1;
+            height: 6px;
+            border-radius: 3px;
+            background: linear-gradient(to right, var(--color-accent-green), var(--color-accent-orange));
+            outline: none;
+            -webkit-appearance: none;
+            appearance: none;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-accent-green);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--color-accent-green);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .slider-value {
+            min-width: 50px;
+            text-align: right;
+            color: var(--color-accent-yellow);
+            font-weight: 600;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--color-bg-tertiary);
+        }
+
+        .tab-button {
+            padding: 12px 16px;
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            cursor: pointer;
+            font-weight: 500;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button.active {
+            color: var(--color-accent-green);
+            border-bottom-color: var(--color-accent-green);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .metric-card {
+            background: linear-gradient(135deg, var(--color-bg-tertiary) 0%, var(--color-bg-secondary) 100%);
+            padding: 16px;
+            border-radius: 8px;
+            border-left: 4px solid var(--color-accent-green);
+            margin-bottom: 12px;
+        }
+
+        .metric-label {
+            color: var(--color-text-secondary);
+            font-size: 0.85rem;
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--color-accent-yellow);
+        }
+
+        .metric-unit {
+            color: var(--color-text-muted);
+            font-size: 0.9rem;
+            margin-left: 4px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .stat-box {
+            background-color: var(--color-bg-tertiary);
+            padding: 12px;
+            border-radius: 6px;
+            text-align: center;
+        }
+
+        .stat-box-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--color-accent-green);
+        }
+
+        .stat-box-label {
+            color: var(--color-text-secondary);
+            font-size: 0.8rem;
+            margin-top: 4px;
+        }
+
+        .map-container {
+            width: 100%;
+            height: 500px;
+            background: linear-gradient(135deg, #1a472a 0%, #0d2818 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid var(--color-bg-tertiary);
+        }
+
+        .map-visualization {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        .building {
+            position: absolute;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: white;
+            border: 2px solid transparent;
+        }
+
+        .building:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 16px rgba(16, 185, 129, 0.6);
+        }
+
+        .building.solar-station {
+            background: linear-gradient(135deg, var(--color-accent-orange), var(--color-accent-yellow));
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+        }
+
+        .building.demand {
+            background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-green));
+            opacity: 0.8;
+        }
+
+        .building.selected {
+            border-color: var(--color-accent-yellow);
+            box-shadow: 0 0 24px rgba(251, 191, 36, 0.8);
+        }
+
+        .connection-line {
+            position: absolute;
+            background: linear-gradient(to right, var(--color-accent-green), transparent);
+            height: 1px;
+            opacity: 0.6;
+            pointer-events: none;
+        }
+
+        .detail-panel {
+            background-color: var(--color-bg-secondary);
+            border: 1px solid var(--color-bg-tertiary);
+            border-radius: 12px;
+            padding: 24px;
+            margin-top: 30px;
+        }
+
+        .detail-panel h2 {
+            color: var(--color-accent-green);
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .detail-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .detail-item {
+            background-color: var(--color-bg-tertiary);
+            padding: 16px;
+            border-radius: 8px;
+        }
+
+        .detail-item-label {
+            color: var(--color-text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 8px;
+        }
+
+        .detail-item-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--color-accent-yellow);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background-color: var(--color-bg-tertiary);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--color-accent-green), var(--color-accent-yellow));
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+
+        .info-box {
+            background: rgba(16, 185, 129, 0.1);
+            border-left: 4px solid var(--color-accent-green);
+            padding: 16px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            color: var(--color-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .impact-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 1400px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .impact-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8rem;
+            }
+
+            .detail-row {
+                grid-template-columns: 1fr;
+            }
+
+            .impact-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--color-accent-green);
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .success-badge {
+            display: inline-block;
+            background: rgba(34, 197, 94, 0.2);
+            color: var(--color-success);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>☀️ Solar Microgrid Optimizer</h1>
+            <p>Climate & Geospatial Data-Driven Energy Distribution for Delhi-NCR</p>
+        </div>
+
+        <div class="layout">
+            <!-- LEFT PANEL: CONTROLS & ANALYSIS -->
+            <div class="panel">
+                <h2><span class="panel-icon">⚙️</span> Configuration</h2>
+
+                <div class="info-box">
+                    <strong>How it works:</strong> Analyze solar irradiance, demand patterns, and optimize microgrid placement to maximize clean energy coverage and equitable distribution.
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('input')">Input Data</button>
+                    <button class="tab-button" onclick="switchTab('analysis')">Analysis</button>
+                    <button class="tab-button" onclick="switchTab('api')">API Debug</button>
+                    <button class="tab-button" onclick="switchTab('results')">Results</button>
+                </div>
+
+                <!-- TAB: INPUT DATA -->
+                <div id="input" class="tab-content active">
+                    <div class="control-group">
+                        <label>Study Area</label>
+                        <select class="select-field" id="studyArea" onchange="updateStudyArea()">
+                            <option value="sample-delhi">Sample Delhi-NCR Zone</option>
+                            <option value="north-delhi">North Delhi</option>
+                            <option value="south-delhi">South Delhi</option>
+                            <option value="dwarka">Dwarka</option>
+                        </select>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Solar Irradiance Weight</label>
+                        <div class="slider-container">
+                            <input type="range" id="solarWeight" min="0" max="100" value="50" oninput="updateOptimization()">
+                            <span class="slider-value" id="solarWeightValue">50%</span>
+                        </div>
+                        <p style="color: var(--color-text-muted); font-size: 0.8rem; margin-top: 4px;">Higher = prioritize solar capacity over demand coverage</p>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Equity Priority</label>
+                        <div class="slider-container">
+                            <input type="range" id="equityWeight" min="0" max="100" value="60" oninput="updateOptimization()">
+                            <span class="slider-value" id="equityWeightValue">60%</span>
+                        </div>
+                        <p style="color: var(--color-text-muted); font-size: 0.8rem; margin-top: 4px;">Higher = prioritize low-income areas for energy access</p>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Max Sharing Radius (km)</label>
+                        <div class="slider-container">
+                            <input type="range" id="sharingRadius" min="0.5" max="3" step="0.5" value="1.5" oninput="updateOptimization()">
+                            <span class="slider-value" id="radiusValue">1.5 km</span>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label>Target Solar Stations</label>
+                        <div class="slider-container">
+                            <input type="range" id="stationCount" min="3" max="15" value="8" oninput="updateOptimization()">
+                            <span class="slider-value" id="stationCountValue">8</span>
+                        </div>
+                    </div>
+
+                    <button class="button button-primary" onclick="runOptimization()">🚀 Run Optimization</button>
+                </div>
+
+                <!-- TAB: ANALYSIS -->
+                <div id="analysis" class="tab-content">
+                    <h3 style="color: var(--color-accent-yellow); margin-bottom: 15px; font-size: 1.1rem;">Solar Suitability Analysis</h3>
+                    <div class="metric-card">
+                        <div class="metric-label">Avg Solar Irradiance</div>
+                        <div class="metric-value" id="avgIrradiance">5.4 <span class="metric-unit">kWh/m²/day</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">High-Potential Rooftops</div>
+                        <div class="metric-value" id="highPotentialRooftops">47 <span class="metric-unit">/ 120 buildings</span></div>
+                    </div>
+
+                    <h3 style="color: var(--color-accent-yellow); margin: 20px 0 15px 0; font-size: 1.1rem;">Demand Estimation</h3>
+                    <div class="metric-card">
+                        <div class="metric-label">Total Daily Demand</div>
+                        <div class="metric-value" id="totalDemand">1,240 <span class="metric-unit">kWh</span></div>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-label">Low-Income Priority Areas</div>
+                        <div class="metric-value" id="priorityAreas">23 <span class="metric-unit">clusters</span></div>
+                    </div>
+
+                    <h3 style="color: var(--color-accent-yellow); margin: 20px 0 15px 0; font-size: 1.1rem;">Optimization Status</h3>
+                    <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background-color: var(--color-bg-tertiary); border-radius: 6px;">
+                        <div class="loading"></div>
+                        <span id="optimizationStatus">Ready to optimize...</span>
+                    </div>
+                </div>
+
+                <!-- TAB: API DEBUG -->
+                <div id="api" class="tab-content">
+                    <h3 style="color: var(--color-accent-yellow); margin-bottom: 15px; font-size: 1.1rem;">Backend API Integration</h3>
+                    <div class="control-group">
+                        <label>Backend URL</label>
+                        <input type="text" class="input-field" id="backendUrl" placeholder="http://localhost:8000" value="http://localhost:8000">
+                    </div>
+                    <button class="button button-secondary" style="width: 100%; margin-bottom: 10px;" onclick="testConnection()">🔗 Test Connection</button>
+                    <div id="connectionStatus" style="display: none; padding: 12px; background-color: var(--color-bg-tertiary); border-radius: 6px; margin-bottom: 10px; font-size: 0.85rem;"></div>
+
+                    <h3 style="color: var(--color-accent-yellow); margin: 15px 0 10px 0; font-size: 0.95rem;">Available Endpoints</h3>
+                    <div style="background-color: var(--color-bg-tertiary); padding: 12px; border-radius: 6px; font-size: 0.8rem; font-family: monospace; line-height: 1.6; color: var(--color-text-muted);">
+                        POST /analyze-solar<br>
+                        POST /estimate-demand<br>
+                        POST /optimize-placement<br>
+                        GET /impact-metrics<br>
+                        POST /validate-data
+                    </div>
+
+                    <h3 style="color: var(--color-accent-yellow); margin: 15px 0 10px 0; font-size: 0.95rem;">Last API Response</h3>
+                    <div id="apiResponse" style="background-color: var(--color-bg-tertiary); padding: 12px; border-radius: 6px; font-size: 0.75rem; font-family: monospace; max-height: 200px; overflow-y: auto; color: var(--color-accent-green); white-space: pre-wrap; word-break: break-all;">
+                        No response yet. Test connection to populate.
+                    </div>
+                </div>
+
+                <!-- TAB: RESULTS -->
+                <div id="results" class="tab-content">
+                    <h3 style="color: var(--color-accent-yellow); margin-bottom: 15px; font-size: 1.1rem;">Optimization Results</h3>
+                    
+                    <div class="metric-card">
+                        <div class="metric-label">Solar Stations Selected</div>
+                        <div class="metric-value" id="resultStations">-</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Total Capacity</div>
+                        <div class="metric-value" id="resultCapacity">-</div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Coverage</div>
+                        <div class="metric-value" id="resultCoverage">-</div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="coverageBar" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-label">Equity Score</div>
+                        <div class="metric-value" id="resultEquity">-</div>
+                    </div>
+
+                    <button class="button button-secondary" style="margin-top: 15px; width: 100%;" onclick="exportResults()">📥 Export Results</button>
+                </div>
+            </div>
+
+            <!-- RIGHT PANEL: VISUALIZATION -->
+            <div class="panel" style="display: flex; flex-direction: column;">
+                <h2><span class="panel-icon">🗺️</span> Geospatial Visualization</h2>
+
+                <div class="map-container">
+                    <div class="map-visualization" id="mapVisualization">
+                        <!-- Buildings will be rendered here -->
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 16px; background-color: var(--color-bg-tertiary); border-radius: 8px;">
+                    <div style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 12px;"><strong>Legend:</strong></div>
+                    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 20px; height: 20px; background: linear-gradient(135deg, var(--color-accent-orange), var(--color-accent-yellow)); border-radius: 2px;"></div>
+                            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Solar Station</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 20px; height: 20px; background: linear-gradient(135deg, var(--color-accent-blue), var(--color-accent-green)); border-radius: 2px; opacity: 0.8;"></div>
+                            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Demand Building</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <div style="width: 12px; height: 12px; background: var(--color-accent-green); border-radius: 50%;"></div>
+                            <span style="font-size: 0.85rem; color: var(--color-text-secondary);">Connection</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 20px; padding: 16px; background-color: var(--color-bg-tertiary); border-radius: 8px;">
+                    <div style="color: var(--color-text-secondary); font-size: 0.9rem; margin-bottom: 12px;"><strong>Selected Building:</strong> <span id="selectedBuildingName" style="color: var(--color-accent-yellow);">None</span></div>
+                    <div id="buildingDetails" style="font-size: 0.85rem; color: var(--color-text-secondary); line-height: 1.6;">
+                        Click a building on the map to view details
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- IMPACT SIMULATION SECTION -->
+        <div class="detail-panel">
+            <h2>📊 Climate & Equity Impact Simulation</h2>
+
+            <div class="detail-row">
+                <div class="detail-item">
+                    <div class="detail-item-label">CO₂ Avoided (Annual)</div>
+                    <div class="detail-item-value" id="co2Avoided">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">Peak Load Reduction</div>
+                    <div class="detail-item-value" id="peakReduction">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">Diesel Generators Replaced</div>
+                    <div class="detail-item-value" id="generatorsReplaced">-</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-item-label">Low-Income Beneficiaries</div>
+                    <div class="detail-item-value" id="equityBeneficiaries">-</div>
+                </div>
+            </div>
+
+            <div style="background-color: var(--color-bg-secondary); padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h3 style="color: var(--color-accent-yellow); margin-bottom: 15px;">Impact Breakdown by Year</h3>
+                <div class="impact-grid">
+                    <div class="stat-box">
+                        <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 8px;">Year 1</div>
+                        <div class="stat-box-value" style="font-size: 1.3rem;">45%</div>
+                        <div class="stat-box-label">Infrastructure Deploy</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 8px;">Year 2</div>
+                        <div class="stat-box-value" style="font-size: 1.3rem;">78%</div>
+                        <div class="stat-box-label">Full Operation</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 8px;">Year 3-5</div>
+                        <div class="stat-box-value" style="font-size: 1.3rem;">100%</div>
+                        <div class="stat-box-label">Optimal Efficiency</div>
+                    </div>
+                    <div class="stat-box">
+                        <div style="font-size: 0.85rem; color: var(--color-text-secondary); margin-bottom: 8px;">Payback</div>
+                        <div class="stat-box-value" style="font-size: 1.3rem;">4.2y</div>
+                        <div class="stat-box-label">ROI Period</div>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background: rgba(16, 185, 129, 0.1); border-left: 4px solid var(--color-accent-green); padding: 20px; border-radius: 6px; margin-top: 20px;">
+                <p style="color: var(--color-text-secondary); line-height: 1.8;">
+                    <strong style="color: var(--color-accent-green);">Key Assumptions:</strong>
+                    Solar efficiency: 18% • Battery storage: 4-6 hrs • Grid connection loss: 8% • Average consumption: 1.5 kWh/day residential, 8 kWh/day commercial • CO₂ offset rate: 0.62 kg/kWh vs grid electricity
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Data model for buildings
+        const buildingsData = {
+            'sample-delhi': [
+                { id: 'A', x: 15, y: 20, name: 'Building A (Residential)', solar: 35, demand: 8, income: 'low', type: 'residential' },
+                { id: 'B', x: 50, y: 30, name: 'Building B (Commercial)', solar: 70, demand: 15, income: 'high', type: 'commercial' },
+                { id: 'C', x: 75, y: 50, name: 'Building C (Mixed)', solar: 65, demand: 12, income: 'medium', type: 'mixed' },
+                { id: 'D', x: 25, y: 65, name: 'Building D (School)', solar: 55, demand: 10, income: 'low', type: 'public' },
+                { id: 'E', x: 60, y: 75, name: 'Building E (Hospital)', solar: 45, demand: 20, income: 'low', type: 'public' },
+                { id: 'F', x: 80, y: 25, name: 'Building F (Retail)', solar: 40, demand: 12, income: 'medium', type: 'commercial' },
+                { id: 'G', x: 35, y: 40, name: 'Building G (Apartment)', solar: 60, demand: 14, income: 'medium', type: 'residential' },
+                { id: 'H', x: 85, y: 75, name: 'Building H (Office)', solar: 50, demand: 18, income: 'high', type: 'commercial' },
+            ]
+        };
+
+        let currentData = [];
+        let selectedBuilding = null;
+        let optimizationResults = null;
+        let backendConnected = false;
+        let apiEndpoints = {};
+
+        // Phase 2: Backend Integration
+        async function testConnection() {
+            const url = document.getElementById('backendUrl').value || 'http://localhost:8000';
+            const statusEl = document.getElementById('connectionStatus');
+            const responseEl = document.getElementById('apiResponse');
+            
+            statusEl.style.display = 'flex';
+            statusEl.innerHTML = '<div class="loading"></div><span>Testing connection...</span>';
+
+            try {
+                const response = await fetch(`${url}/health`, {
+                    method: 'GET',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    backendConnected = true;
+                    statusEl.innerHTML = '<span style="color: var(--color-success);">✅ Backend Connected!</span>';
+                    responseEl.textContent = JSON.stringify(data, null, 2);
+                    console.log('Backend response:', data);
+                } else {
+                    backendConnected = false;
+                    statusEl.innerHTML = '<span style="color: var(--color-accent-orange);">⚠️ Backend returned ' + response.status + '</span>';
+                    responseEl.textContent = 'HTTP ' + response.status + ': ' + response.statusText;
+                }
+            } catch (error) {
+                backendConnected = false;
+                statusEl.innerHTML = '<span style="color: var(--color-warning);">❌ Connection Failed</span>';
+                responseEl.textContent = 'Error: ' + error.message + '\n\nMake sure backend is running at ' + url;
+            }
+        }
+
+        async function analyzeSolarViaAPI() {
+            if (!backendConnected) {
+                console.warn('Backend not connected. Using local analysis.');
+                return null;
+            }
+
+            const url = document.getElementById('backendUrl').value;
+            const payload = {
+                buildings: currentData,
+                area: document.getElementById('studyArea').value,
+                season: 'winter' // TODO: add season selector
+            };
+
+            try {
+                const response = await fetch(`${url}/analyze-solar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('apiResponse').textContent = JSON.stringify(result, null, 2);
+                    
+                    // Update UI with API results
+                    document.getElementById('avgIrradiance').textContent = (result.avg_irradiance || 5.4).toFixed(2) + ' <span class="metric-unit">kWh/m²/day</span>';
+                    document.getElementById('highPotentialRooftops').textContent = (result.high_potential_count || 47) + ' <span class="metric-unit">/ ' + currentData.length + ' buildings</span>';
+                    
+                    return result;
+                }
+            } catch (error) {
+                console.error('Solar analysis API error:', error);
+            }
+            return null;
+        }
+
+        async function estimateDemandViaAPI() {
+            if (!backendConnected) {
+                console.warn('Backend not connected. Using local estimation.');
+                return null;
+            }
+
+            const url = document.getElementById('backendUrl').value;
+            const payload = {
+                buildings: currentData,
+                area: document.getElementById('studyArea').value
+            };
+
+            try {
+                const response = await fetch(`${url}/estimate-demand`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('apiResponse').textContent = JSON.stringify(result, null, 2);
+                    
+                    // Update UI with API results
+                    document.getElementById('totalDemand').textContent = (result.total_daily_demand || 1240).toFixed(0) + ' <span class="metric-unit">kWh</span>';
+                    document.getElementById('priorityAreas').textContent = (result.priority_areas || 23) + ' <span class="metric-unit">clusters</span>';
+                    
+                    return result;
+                }
+            } catch (error) {
+                console.error('Demand estimation API error:', error);
+            }
+            return null;
+        }
+
+        async function optimizeViaAPI(solarWeight, equityWeight, targetStations) {
+            if (!backendConnected) {
+                console.warn('Backend not connected. Using local optimization.');
+                return null;
+            }
+
+            const url = document.getElementById('backendUrl').value;
+            const payload = {
+                buildings: currentData,
+                solar_weight: solarWeight / 100,
+                equity_weight: equityWeight / 100,
+                target_stations: targetStations,
+                sharing_radius: parseFloat(document.getElementById('sharingRadius').value)
+            };
+
+            try {
+                document.getElementById('optimizationStatus').textContent = 'Calling optimization API...';
+                
+                const response = await fetch(`${url}/optimize-placement`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    document.getElementById('apiResponse').textContent = JSON.stringify(result, null, 2);
+                    document.getElementById('optimizationStatus').textContent = '✅ API optimization complete!';
+                    return result;
+                } else {
+                    document.getElementById('optimizationStatus').textContent = '❌ API returned ' + response.status;
+                }
+            } catch (error) {
+                console.error('Optimization API error:', error);
+                document.getElementById('optimizationStatus').textContent = '⚠️ API error: ' + error.message;
+            }
+            return null;
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        function updateStudyArea() {
+            const area = document.getElementById('studyArea').value;
+            currentData = buildingsData[area] || buildingsData['sample-delhi'];
+            renderMap();
+            updateAnalysisMetrics();
+        }
+
+        function updateOptimization() {
+            document.getElementById('solarWeightValue').textContent = document.getElementById('solarWeight').value + '%';
+            document.getElementById('equityWeightValue').textContent = document.getElementById('equityWeight').value + '%';
+            document.getElementById('radiusValue').textContent = document.getElementById('sharingRadius').value + ' km';
+            document.getElementById('stationCountValue').textContent = document.getElementById('stationCount').value;
+        }
+
+        function runOptimization() {
+            const solarWeight = parseInt(document.getElementById('solarWeight').value);
+            const equityWeight = parseInt(document.getElementById('equityWeight').value);
+            const targetStations = parseInt(document.getElementById('stationCount').value);
+
+            document.getElementById('optimizationStatus').textContent = 'Optimizing placement...';
+
+            // Simulate optimization algorithm
+            setTimeout(() => {
+                // Scoring algorithm
+                const scored = currentData.map(building => {
+                    const solarScore = (building.solar / 100) * solarWeight;
+                    const equityScore = (building.income === 'low' ? 1 : building.income === 'medium' ? 0.7 : 0.5) * equityWeight;
+                    const demandRatio = building.solar / building.demand;
+                    const finalScore = (solarScore + equityScore + demandRatio * 20) / 3;
+                    return { ...building, score: finalScore };
+                });
+
+                // Select top stations
+                const stations = scored.sort((a, b) => b.score - a.score).slice(0, targetStations);
+                
+                // Calculate total capacity and demand coverage
+                const totalCapacity = stations.reduce((sum, s) => sum + s.solar * 0.18, 0); // 18% efficiency
+                const totalDemand = currentData.reduce((sum, b) => sum + b.demand, 0);
+                const coverage = Math.min(100, (totalCapacity / totalDemand) * 100);
+                
+                // Equity score based on low-income inclusion
+                const lowIncomeInStations = stations.filter(s => s.income === 'low').length;
+                const equityScore = (lowIncomeInStations / stations.length) * 100;
+
+                optimizationResults = {
+                    stations: stations.map(s => s.id),
+                    stationObjects: stations,
+                    totalCapacity: totalCapacity.toFixed(1),
+                    coverage: coverage.toFixed(1),
+                    equityScore: equityScore.toFixed(1)
+                };
+
+                // Update results panel
+                document.getElementById('resultStations').textContent = stations.length + ' stations';
+                document.getElementById('resultCapacity').textContent = totalCapacity.toFixed(1) + ' <span class="metric-unit">kW</span>';
+                document.getElementById('resultCoverage').textContent = coverage.toFixed(1) + ' <span class="metric-unit">%</span>';
+                document.getElementById('resultEquity').textContent = equityScore.toFixed(1) + ' <span class="metric-unit">%</span>';
+                document.getElementById('coverageBar').style.width = coverage + '%';
+
+                // Update impact metrics
+                const co2Annual = (totalCapacity * 365 * 0.62 / 1000).toFixed(0); // metric tons
+                const peakReduction = (totalCapacity / totalDemand * 100).toFixed(1);
+                const generatorsReplaced = Math.ceil(totalCapacity / 50);
+                const beneficiaries = (currentData.filter(b => b.income === 'low').length * 200).toFixed(0);
+
+                document.getElementById('co2Avoided').textContent = co2Annual + ' <span class="metric-unit">metric tons</span>';
+                document.getElementById('peakReduction').textContent = peakReduction + ' <span class="metric-unit">%</span>';
+                document.getElementById('generatorsReplaced').textContent = generatorsReplaced + ' <span class="metric-unit">units</span>';
+                document.getElementById('equityBeneficiaries').textContent = beneficiaries + ' <span class="metric-unit">people</span>';
+
+                document.getElementById('optimizationStatus').textContent = '✅ Optimization complete!';
+                renderMap();
+            }, 1500);
+        }
+
+        function renderMap() {
+            const mapContainer = document.getElementById('mapVisualization');
+            mapContainer.innerHTML = '';
+
+            // Render buildings
+            currentData.forEach(building => {
+                const isStation = optimizationResults && optimizationResults.stations.includes(building.id);
+                const buildingEl = document.createElement('div');
+                buildingEl.className = 'building' + (isStation ? ' solar-station' : ' demand') + (selectedBuilding?.id === building.id ? ' selected' : '');
+                buildingEl.style.left = building.x + '%';
+                buildingEl.style.top = building.y + '%';
+                buildingEl.style.width = '60px';
+                buildingEl.style.height = '60px';
+                buildingEl.textContent = building.id;
+                buildingEl.onclick = () => selectBuilding(building);
+                mapContainer.appendChild(buildingEl);
+            });
+
+            // Draw connection lines if optimization exists
+            if (optimizationResults && optimizationResults.stationObjects) {
+                optimizationResults.stationObjects.forEach(station => {
+                    const demandBuildings = currentData.filter(b => b.id !== station.id);
+                    demandBuildings.forEach(demand => {
+                        const lineEl = document.createElement('div');
+                        lineEl.className = 'connection-line';
+                        const dx = demand.x - station.x;
+                        const dy = demand.y - station.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        const angle = Math.atan2(dy, dx);
+                        lineEl.style.left = station.x + '%';
+                        lineEl.style.top = station.y + '%';
+                        lineEl.style.width = distance * 3 + 'px';
+                        lineEl.style.transform = 'rotate(' + (angle * 180 / Math.PI) + 'deg)';
+                        lineEl.style.transformOrigin = '0 0';
+                        mapContainer.appendChild(lineEl);
+                    });
+                });
+            }
+        }
+
+        function selectBuilding(building) {
+            selectedBuilding = building;
+            document.getElementById('selectedBuildingName').textContent = building.id + ' - ' + building.name.split('(')[1].slice(0, -1);
+            
+            const isStation = optimizationResults && optimizationResults.stations.includes(building.id);
+            const details = `
+                <div style="margin-bottom: 8px;"><strong>Type:</strong> ${building.type}</div>
+                <div style="margin-bottom: 8px;"><strong>Solar Potential:</strong> ${building.solar}% ⭐</div>
+                <div style="margin-bottom: 8px;"><strong>Demand:</strong> ${building.demand} kWh/day</div>
+                <div style="margin-bottom: 8px;"><strong>Income Level:</strong> ${building.income.toUpperCase()}</div>
+                ${isStation ? '<div style="color: var(--color-accent-yellow); font-weight: 600;">✓ Selected as Solar Station</div>' : '<div>Regular demand building</div>'}
+            `;
+            document.getElementById('buildingDetails').innerHTML = details;
+            renderMap();
+        }
+
+        function updateAnalysisMetrics() {
+            // This would call backend analysis API
+            // For now, showing static metrics
+        }
+
+        function exportResults() {
+            if (!optimizationResults) {
+                alert('Please run optimization first!');
+                return;
+            }
+
+            const data = {
+                timestamp: new Date().toISOString(),
+                configuration: {
+                    solarWeight: document.getElementById('solarWeight').value,
+                    equityWeight: document.getElementById('equityWeight').value,
+                    sharingRadius: document.getElementById('sharingRadius').value,
+                    targetStations: document.getElementById('stationCount').value,
+                },
+                results: optimizationResults,
+                stations: optimizationResults.stationObjects,
+            };
+
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'microgrid-optimization-' + new Date().getTime() + '.json';
+            a.click();
+        }
+
+        // Initialize
+        document.getElementById('studyArea').value = 'sample-delhi';
+        updateStudyArea();
+    </script>
+</body>
+</html>
